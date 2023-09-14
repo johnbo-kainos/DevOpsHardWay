@@ -1,10 +1,9 @@
 resource "azurerm_kubernetes_cluster" "k8s" {
   name                = "${local.naming_prefix}-aks"
   location            = var.location
-  resource_group_name = data.azurerm_resource_group.resource_group.name
+  resource_group_name = azurerm_resource_group.aks_resource_group.name
   dns_prefix          = "${local.naming_prefix}-dns"
   kubernetes_version  = var.kubernetes_version
-
   node_resource_group = "${local.naming_prefix}-node-rg"
 
   linux_profile {
@@ -19,7 +18,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     name                 = "agentpool"
     node_count           = var.agent_count
     vm_size              = var.vm_size
-    vnet_subnet_id       = data.azurerm_subnet.akssubnet.id
+    vnet_subnet_id       = data.azurerm_subnet.aks_subnet.id
     type                 = "VirtualMachineScaleSets"
     orchestrator_version = var.kubernetes_version
   }
@@ -28,17 +27,13 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     type = "SystemAssigned"
   }
 
-  addon_profile {
-    oms_agent {
-      enabled                    = var.addons.oms_agent
-      log_analytics_workspace_id = data.azurerm_log_analytics_workspace.workspace.id
-    }
 
-    ingress_application_gateway {
-      enabled   = var.addons.ingress_application_gateway
-      subnet_id = data.azurerm_subnet.appgwsubnet.id
-    }
+  oms_agent {
+    log_analytics_workspace_id = data.azurerm_log_analytics_workspace.workspace.id
+  }
 
+  ingress_application_gateway {
+    subnet_id = data.azurerm_subnet.appgw_subnet.id
   }
 
   network_profile {
@@ -46,13 +41,13 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     network_plugin    = "azure"
   }
 
-  role_based_access_control {
-    enabled = var.kubernetes_cluster_rbac_enabled
+  azure_active_directory_role_based_access_control {
 
-    azure_active_directory {
-      managed                = true
-      admin_group_object_ids = [var.aks_admins_group_object_id]
-    }
+    managed            = true
+    azure_rbac_enabled = true
+    //admin_group_object_ids = [var.aks_admins_group_object_id]
+    admin_group_object_ids = [data.azuread_group.aks_admin_group.object_id]
+
   }
 
 }

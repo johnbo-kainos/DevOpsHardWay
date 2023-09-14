@@ -5,45 +5,77 @@ terraform {
     container_name       = "tfstate"
     key                  = "aks-terraform.tfstate"
   }
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.72.0"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.15.0"
+    }
+  }
 }
 
 provider "azurerm" {
-  version = "~> 2.0"
   features {}
 }
 
-data "azurerm_resource_group" "resource_group" {
-  name = "jb-${var.name}-rg"
+provider "azuread" {}
+
+//Networking Data 
+data "azurerm_resource_group" "aks_vnet_rg"{
+  name = "${local.naming_prefix}-network-rg"
 }
 
-data "azurerm_subnet" "akssubnet" {
+data "azurerm_virtual_network" "aks_vnet" {
+  name                = "${local.naming_prefix}-vnet"
+  resource_group_name = data.azurerm_resource_group.aks_vnet_rg.name
+}
+
+data "azurerm_subnet" "aks_subnet" {
   name                 = "aks"
-  virtual_network_name = "jb-${var.name}-vnet"
-  resource_group_name  = data.azurerm_resource_group.resource_group.name
+  virtual_network_name = data.azurerm_virtual_network.aks_vnet.name
+  resource_group_name  = data.azurerm_resource_group.aks_vnet_rg.name
 }
 
-data "azurerm_subnet" "appgwsubnet" {
+data "azurerm_subnet" "appgw_subnet" {
   name                 = "appgw"
-  virtual_network_name = "jb-${var.name}-vnet"
-  resource_group_name  = data.azurerm_resource_group.resource_group.name
+  virtual_network_name = data.azurerm_virtual_network.aks_vnet.name
+  resource_group_name  = data.azurerm_resource_group.aks_vnet_rg.name
+}
+
+// Log Analytics Data
+data "azurerm_resource_group" "la_rg"{
+  name = "${local.naming_prefix}-la-rg"
 }
 
 data "azurerm_log_analytics_workspace" "workspace" {
-  name                = "jb-${var.name}-la"
-  resource_group_name = data.azurerm_resource_group.resource_group.name
+  name                = "${local.naming_prefix}-la"
+  resource_group_name = data.azurerm_resource_group.la_rg.name
 }
 
-data "azurerm_resource_group" "node_resource_group" {
-  name = azurerm_kubernetes_cluster.k8s.node_resource_group
-  depends_on = [
-    azurerm_kubernetes_cluster.k8s
-  ]
+//????
+# data "azurerm_resource_group" "node_resource_group" {
+#   name = azurerm_kubernetes_cluster.k8s.node_resource_group
+#   depends_on = [
+#     azurerm_kubernetes_cluster.k8s
+#   ]
+# }
+
+// ACR Data
+data "azurerm_resource_group" "acr_rg"{
+  name = "${local.naming_prefix}-acr-rg"
 }
 
-
-
-data "azurerm_container_registry" "example" {
-  name                = "jb${var.name}acr"
-  resource_group_name = data.azurerm_resource_group.resource_group.name
+data "azurerm_container_registry" "acr_registry" {
+  name                = "${local.acr_naming_prefix}acr"
+  resource_group_name = data.azurerm_resource_group.acr_rg.name
 }
 
+// Azure AD Data
+data "azuread_group" "aks_admin_group" {
+  display_name     = var.aks_admin_group_name
+  security_enabled = true
+}
