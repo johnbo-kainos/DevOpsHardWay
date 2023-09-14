@@ -50,7 +50,7 @@ jobs:
       uses: hashicorp/terraform-github-actions@master
       with:
         tf_actions_version: ${{ env.TF_VERSION }}
-        tf_actions_subcommand: 'plan'
+        tf_actions_subcommand: 'plan -var-file ./terraform.tfvars'
         tf_actions_working_dir: "./Terraform/AKS"
  
     - name: Terraform Apply
@@ -58,5 +58,5 @@ jobs:
       uses: hashicorp/terraform-github-actions@master
       with:
         tf_actions_version: ${{ env.TF_VERSION }}
-        tf_actions_subcommand: 'apply'
+        tf_actions_subcommand: 'apply -var-file ./terraform.tfvars -auto-approve'
         tf_actions_working_dir: "./Terraform/AKS"
