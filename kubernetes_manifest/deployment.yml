@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: sample-nginx
-        image: jbdevopsthehardwayacr.azurecr.io/sample-nginx:v1
+        image: aksclusterjbacr.azurecr.io/sample-nginx:v1
         ports:
         - containerPort: 80
 ---
