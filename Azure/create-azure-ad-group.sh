@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AZURE_AD_GROUP_NAME="jb-devopsthehardway-aks-group"
+AZURE_AD_GROUP_NAME="aks-cluster-jb-group"
 CURRENT_USER_OBJECTID=$(az ad signed-in-user show --query id -o tsv)
 
 # Create Azure AD Group

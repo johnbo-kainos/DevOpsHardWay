@@ -1,7 +1,7 @@
 #!/bin/sh
 
-RESOURCE_GROUP_NAME="jb-devopstamops-rg"
-STORAGE_ACCOUNT_NAME="jbdevopstamopssa"
+RESOURCE_GROUP_NAME="aks-cluster-jb-tfstate-rg"
+STORAGE_ACCOUNT_NAME="aksjbtfstatesa"
 
 # Create Resource Group
 az group create -l uksouth -n $RESOURCE_GROUP_NAME
