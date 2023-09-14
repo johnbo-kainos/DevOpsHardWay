@@ -1,5 +1,5 @@
 resource "azurerm_kubernetes_cluster" "k8s" {
-  name                = "${local.naming_prefix}-aks"
+  name                = local.naming_prefix
   location            = var.location
   resource_group_name = azurerm_resource_group.aks_resource_group.name
   dns_prefix          = "${local.naming_prefix}-dns"
@@ -27,7 +27,6 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     type = "SystemAssigned"
   }
 
-
   oms_agent {
     log_analytics_workspace_id = data.azurerm_log_analytics_workspace.workspace.id
   }
@@ -42,10 +41,8 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   azure_active_directory_role_based_access_control {
-
-    managed            = true
-    azure_rbac_enabled = true
-    //admin_group_object_ids = [var.aks_admins_group_object_id]
+    managed                = true
+    azure_rbac_enabled     = true
     admin_group_object_ids = [data.azuread_group.aks_admin_group.object_id]
 
   }

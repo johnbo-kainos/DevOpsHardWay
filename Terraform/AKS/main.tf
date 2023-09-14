@@ -25,7 +25,7 @@ provider "azurerm" {
 provider "azuread" {}
 
 //Networking Data 
-data "azurerm_resource_group" "aks_vnet_rg"{
+data "azurerm_resource_group" "aks_vnet_rg" {
   name = "${local.naming_prefix}-network-rg"
 }
 
@@ -47,7 +47,7 @@ data "azurerm_subnet" "appgw_subnet" {
 }
 
 // Log Analytics Data
-data "azurerm_resource_group" "la_rg"{
+data "azurerm_resource_group" "la_rg" {
   name = "${local.naming_prefix}-la-rg"
 }
 
@@ -65,7 +65,7 @@ data "azurerm_log_analytics_workspace" "workspace" {
 # }
 
 // ACR Data
-data "azurerm_resource_group" "acr_rg"{
+data "azurerm_resource_group" "acr_rg" {
   name = "${local.naming_prefix}-acr-rg"
 }
 
